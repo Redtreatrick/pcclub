@@ -1,11 +1,13 @@
 package event
 
-import "testing"
+import (
+	"pc_club/queue"
+	"pc_club/table"
+	"testing"
+)
 
 import (
 	"fmt"
-	"pc_club/internal/queue"
-	"pc_club/internal/table"
 )
 
 func TestClientEntered(t *testing.T) {

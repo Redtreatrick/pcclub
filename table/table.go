@@ -1,7 +1,7 @@
 package table
 
 import (
-	"pc_club/internal/time"
+	"pc_club/time"
 )
 
 type Table struct {

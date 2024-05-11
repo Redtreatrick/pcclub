@@ -3,9 +3,9 @@ package event
 import (
 	"fmt"
 	"log"
-	"pc_club/internal/queue"
-	"pc_club/internal/table"
-	"pc_club/internal/time"
+	"pc_club/queue"
+	"pc_club/table"
+	"pc_club/time"
 	"regexp"
 	"strconv"
 	"strings"
@@ -68,9 +68,7 @@ func ReadEvent(data []string) *Event {
 
 func valid(str string) bool {
 	pattern := `^[a-z0-9_-]+$`
-	// Compile the regular expression.
 	re := regexp.MustCompile(pattern)
-	// Test the input string against the compiled regular expression.
 	return re.MatchString(str)
 }
 
@@ -123,7 +121,7 @@ func HandleClientWaiting(users map[string]int, tables []table.Table, q *queue.Ci
 
 	for i, t := range tables {
 		if t.ClientName == "" && i != 0 {
-			fmt.Println(event.TimeMinutes, Error, "ICanWaitNoLonger")
+			fmt.Println(event.TimeMinutes, Error, "ICanWaitNoLonger!")
 			return
 		}
 	}
@@ -145,12 +143,12 @@ func HandleClientLeft(users map[string]int, tables []table.Table, q *queue.Circu
 		return
 	}
 
-	if !q.Contains(string(uName)) && uData == 0 {
+	if !q.Contains(uName) && uData == 0 {
 		delete(users, uName)
 		return
 	}
 
-	if q.Contains(string(uName)) && uData == 0 {
+	if q.Contains(uName) && uData == 0 {
 		return
 	}
 

@@ -5,15 +5,17 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"pc_club/internal/event"
-	"pc_club/internal/queue"
-	"pc_club/internal/table"
-	"pc_club/internal/time"
+	"pc_club/event"
+	"pc_club/queue"
+	"pc_club/table"
+	"pc_club/time"
 	"strconv"
 	"strings"
 )
 
 func main() {
+	//filePath := os.Args[1]
+	//file, err := os.Open(filePath)
 	file, err := os.Open("test_file.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -77,9 +79,19 @@ func main() {
 		}
 	}
 
+	for _, t := range tables {
+		if t.ClientName != "" {
+			fmt.Println(timeClose, event.GotToGoMate, t.ClientName)
+		}
+	}
+
 	fmt.Println(timeClose)
 
 	for num, t := range tables {
+		if num == 0 {
+			continue
+		}
+
 		if t.ClientName != "" {
 			t.Leave(timeClose)
 		}
