@@ -6,14 +6,15 @@ import (
 	"pc_club/internal/queue"
 	"pc_club/internal/table"
 	"pc_club/internal/time"
-	"pc_club/internal/user"
+	"regexp"
 	"strconv"
+	"strings"
 )
 
 type Event struct {
 	TimeMinutes time.Minutes
 	ID          ID
-	ClientName  user.Name
+	ClientName  string
 	Table       int
 }
 
@@ -41,30 +42,39 @@ func ReadEvent(data []string) *Event {
 		if err != nil {
 			log.Fatal("Error converting table number:", err)
 		}
-		if !user.Name(data[2]).Ok() {
+
+		if !valid(data[2]) {
 			panic(fmt.Sprintf("Error in client name in: %s %s %s %s", data[0], data[1], data[2], data[3]))
 		}
 
 		return &Event{
 			TimeMinutes: time.Atoi(data[0]),
 			ID:          ID(id),
-			ClientName:  user.Name(data[2]),
+			ClientName:  data[2],
 			Table:       tableNumber,
 		}
 	}
 
-	if !user.Name(data[2]).Ok() {
+	if !valid(data[2]) {
 		panic(fmt.Sprintf("Error in client name in: %s %s %s", data[0], data[1], data[2]))
 	}
-
+	fmt.Println(strings.Join(data, " "))
 	return &Event{
 		TimeMinutes: time.Atoi(data[0]),
 		ID:          ID(id),
-		ClientName:  user.Name(data[2]),
+		ClientName:  data[2],
 	}
 }
 
-func HandleClientEntered(users map[user.Name]user.Data, event *Event, timeOpen, timeClose time.Minutes) {
+func valid(str string) bool {
+	pattern := `^[a-z0-9_-]+$`
+	// Compile the regular expression.
+	re := regexp.MustCompile(pattern)
+	// Test the input string against the compiled regular expression.
+	return re.MatchString(str)
+}
+
+func HandleClientEntered(users map[string]int, event *Event, timeOpen, timeClose time.Minutes) {
 	if _, ok := users[event.ClientName]; ok {
 		fmt.Println(event.TimeMinutes, Error, "YouShallNotPass")
 		return
@@ -75,14 +85,13 @@ func HandleClientEntered(users map[user.Name]user.Data, event *Event, timeOpen, 
 		return
 	}
 
-	users[event.ClientName] = user.Data{
-		Table: 0,
-		//TimeMinutes: 0,
-	}
-	fmt.Printf("%s %d %s\n", event.TimeMinutes, event.ID, event.ClientName)
+	users[event.ClientName] = 0
+
 }
 
-func HandleClientSat(users map[user.Name]user.Data, tables []table.Table, event *Event) {
+func HandleClientSat(users map[string]int, tables []table.Table, event *Event) {
+	fmt.Println(event.TimeMinutes, event.ID, event.ClientName, event.Table)
+
 	if _, ok := users[event.ClientName]; !ok {
 		fmt.Println(event.TimeMinutes, Error, "ClientUnknown")
 		return
@@ -98,16 +107,15 @@ func HandleClientSat(users map[user.Name]user.Data, tables []table.Table, event 
 		return
 	}
 
-	if users[event.ClientName].Table != 0 {
-		tables[users[event.ClientName].Table].Leave(event.TimeMinutes)
+	if users[event.ClientName] != 0 {
+		tables[users[event.ClientName]].Leave(event.TimeMinutes)
 	}
 
 	tables[event.Table].Enter(event.ClientName, event.TimeMinutes)
-	users[event.ClientName] = user.Data{Table: event.Table /*TimeMinutes: event.TimeMinutes*/}
-	fmt.Println(event.TimeMinutes, event.ID, event.ClientName, event.Table)
+	users[event.ClientName] = event.Table
 }
 
-func HandleClientWaiting(users map[user.Name]user.Data, tables []table.Table, q *queue.CircularBuffer, event *Event) {
+func HandleClientWaiting(users map[string]int, tables []table.Table, q *queue.CircularBuffer, event *Event) {
 	if _, ok := users[event.ClientName]; !ok {
 		fmt.Println(event.TimeMinutes, Error, "ClientUnknown")
 		return
@@ -126,45 +134,36 @@ func HandleClientWaiting(users map[user.Name]user.Data, tables []table.Table, q 
 		return
 	}
 
-	q.Push(string(event.ClientName))
-	fmt.Println(event.TimeMinutes, event.ID, event.ClientName)
+	q.Push(event.ClientName)
 }
 
-func HandleClientLeft(users map[user.Name]user.Data, tables []table.Table, q *queue.CircularBuffer, event *Event) {
-	// если клиент не в клубе - ошибка
+func HandleClientLeft(users map[string]int, tables []table.Table, q *queue.CircularBuffer, event *Event) {
 	uName := event.ClientName
 	uData, ok := users[uName]
 	if !ok {
 		fmt.Println(event.TimeMinutes, Error, "ClientUnknown")
 		return
 	}
-	//fmt.Println("client", uName, "with table", uData.Table, "left")
-	// если клиент не находится ни за компом ни в очереди, его уход ни на что не влияет
-	if !q.Contains(string(uName)) && uData.Table == 0 {
+
+	if !q.Contains(string(uName)) && uData == 0 {
 		delete(users, uName)
 		return
 	}
 
-	// если клиент уходит из очереди, то она подвигается
-	if q.Contains(string(uName)) && uData.Table == 0 {
-		//panic("non specified case")
+	if q.Contains(string(uName)) && uData == 0 {
 		return
 	}
 
-	// если клиент уходит из-за стола при пустой очереди - он свободен идти
 	if q.Empty() {
-		//fmt.Println("client", uName, "with table ", uData.Table, "is free to go")
-		tables[uData.Table].Leave(event.TimeMinutes)
+		tables[uData].Leave(event.TimeMinutes)
 		delete(users, uName)
 		return
 	}
 
-	// если клиент уходит из-за стола при непустой очереди - его стол занимает первый в очереди
-	//fmt.Println("client", uName, "with table ", uData.Table, "has to give his place to someone else")
-	tables[uData.Table].Leave(event.TimeMinutes)
+	tables[uData].Leave(event.TimeMinutes)
 	delete(users, uName)
 	uNameFromQ, ok := q.Pop()
-	tables[uData.Table].Enter(user.Name(uNameFromQ), event.TimeMinutes)
-	users[user.Name(uNameFromQ)] = user.Data{Table: uData.Table}
-
+	tables[uData].Enter(uNameFromQ, event.TimeMinutes)
+	users[uNameFromQ] = uData
+	fmt.Println(event.TimeMinutes, TableAwaits, uNameFromQ, uData)
 }

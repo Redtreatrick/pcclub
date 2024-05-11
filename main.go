@@ -9,7 +9,6 @@ import (
 	"pc_club/internal/queue"
 	"pc_club/internal/table"
 	"pc_club/internal/time"
-	"pc_club/internal/user"
 	"strconv"
 	"strings"
 )
@@ -30,8 +29,7 @@ func main() {
 	if scanner.Scan() {
 		tableAmount, err = strconv.Atoi(scanner.Text())
 		if err != nil {
-			fmt.Println("tableAmount should be integer:", err)
-			return
+			log.Fatal("tableAmount should be integer:", err)
 		}
 	}
 
@@ -55,11 +53,13 @@ func main() {
 		}
 	}
 
-	fmt.Printf("столов: %d\nоткрытие: %v\nзакрытие: %v\nдоход/час: %d\n",
-		tableAmount, timeOpen, timeClose, hourRate)
+	//fmt.Printf("столов: %d\nоткрытие: %v\nзакрытие: %v\nдоход/час: %d\n",
+	//tableAmount, timeOpen, timeClose, hourRate)
+
+	fmt.Println(timeOpen)
 
 	tables := make([]table.Table, tableAmount+1) // first t shall be ignored
-	users := make(map[user.Name]user.Data)
+	users := make(map[string]int)
 	q := queue.NewCircularBuffer(tableAmount)
 
 	for scanner.Scan() {
@@ -76,6 +76,8 @@ func main() {
 
 		}
 	}
+
+	fmt.Println(timeClose)
 
 	for num, t := range tables {
 		if t.ClientName != "" {

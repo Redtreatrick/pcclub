@@ -1,15 +1,15 @@
 package event
 
+import "testing"
+
 import (
 	"fmt"
 	"pc_club/internal/queue"
 	"pc_club/internal/table"
-	"pc_club/internal/user"
-	"testing"
 )
 
 func TestClientEntered(t *testing.T) {
-	users := make(map[user.Name]user.Data)
+	users := make(map[string]int)
 
 	event1 := &Event{
 		TimeMinutes: 1,
@@ -45,14 +45,9 @@ func TestClientEntered(t *testing.T) {
 }
 
 func TestClientSat(t *testing.T) {
-	users := make(map[user.Name]user.Data)
-	users["1"] = user.Data{
-		Table: 0,
-		//TimeMinutes: 0,
-	}
-	users["2"] = user.Data{
-		Table: 0,
-	}
+	users := make(map[string]int)
+	users["1"] = 0
+	users["2"] = 0
 	tables := make([]table.Table, 4)
 
 	event1 := &Event{
@@ -63,9 +58,9 @@ func TestClientSat(t *testing.T) {
 	}
 
 	HandleClientSat(users, tables, event1)
-	if users["1"].Table != 1 || tables[1].ClientName != "1" {
+	if users["1"] != 1 || tables[1].ClientName != "1" {
 		t.Errorf("users 1 table = %d, want %d\ntable 1 user = %s, want %s\n",
-			users["1"].Table, 1, tables[1].ClientName, "1")
+			users["1"], 1, tables[1].ClientName, "1")
 	}
 
 	event2 := &Event{
@@ -75,9 +70,9 @@ func TestClientSat(t *testing.T) {
 		Table:       1,
 	}
 	HandleClientSat(users, tables, event2)
-	if users["2"].Table != 0 || tables[1].ClientName != "1" {
+	if users["2"] != 0 || tables[1].ClientName != "1" {
 		t.Errorf("users 2 table = %d, want %d\ntable 1 user = %s, want %s\n",
-			users["2"].Table, 0, tables[1].ClientName, "1")
+			users["2"], 0, tables[1].ClientName, "1")
 	}
 
 	event3 := &Event{
@@ -91,8 +86,8 @@ func TestClientSat(t *testing.T) {
 		t.Errorf("table 1 should have no user, got %s\ntable1 timeTotal should be 2, got %d",
 			tables[1].ClientName, tables[1].TimeTotal)
 	}
-	if users["1"].Table != 2 {
-		t.Errorf("users 1 table = %d, want %d", users["1"].Table, 2)
+	if users["1"] != 2 {
+		t.Errorf("users 1 table = %d, want %d", users["1"], 2)
 	}
 
 	event4 := &Event{
@@ -105,44 +100,24 @@ func TestClientSat(t *testing.T) {
 	if tables[0].ClientName != "" {
 		t.Errorf("table 0 should have no user, got %s", tables[0].ClientName)
 	}
-	if users["1"].Table != 2 || tables[2].ClientName != "1" {
+	if users["1"] != 2 || tables[2].ClientName != "1" {
 		t.Errorf("users 1 table = %d, want %d\ntable 1 user = %s, want %s\n",
-			users["1"].Table, 2, tables[2].ClientName, "1")
+			users["1"], 2, tables[2].ClientName, "1")
 	}
 }
 
 func TestClientLeft(t *testing.T) {
-	users := make(map[user.Name]user.Data)
-	users["1"] = user.Data{
-		Table: 0,
-	}
-	users["2"] = user.Data{
-		Table: 0,
-	}
-	users["3"] = user.Data{
-		Table: 0,
-	}
-	users["4"] = user.Data{
-		Table: 0,
-	}
-	users["5"] = user.Data{
-		Table: 0,
-	}
-	users["6"] = user.Data{
-		Table: 0,
-	}
-	users["7"] = user.Data{
-		Table: 0,
-	}
-	users["8"] = user.Data{
-		Table: 0,
-	}
-	users["9"] = user.Data{
-		Table: 0,
-	}
-	users["10"] = user.Data{
-		Table: 0,
-	}
+	users := make(map[string]int)
+	users["1"] = 0
+	users["2"] = 0
+	users["3"] = 0
+	users["4"] = 0
+	users["5"] = 0
+	users["6"] = 0
+	users["7"] = 0
+	users["8"] = 0
+	users["9"] = 0
+	users["10"] = 0
 
 	tables := make([]table.Table, 4)
 	q := queue.NewCircularBuffer(3)
