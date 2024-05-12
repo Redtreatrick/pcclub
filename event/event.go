@@ -2,10 +2,10 @@ package event
 
 import (
 	"fmt"
+	"github.com/Redtreatrick/pcclub/queue"
+	"github.com/Redtreatrick/pcclub/table"
+	"github.com/Redtreatrick/pcclub/time"
 	"log"
-	"pc_club/queue"
-	"pc_club/table"
-	"pc_club/time"
 	"regexp"
 	"strconv"
 	"strings"

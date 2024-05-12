@@ -1,7 +1,7 @@
 package table
 
 import (
-	"pc_club/time"
+	"github.com/Redtreatrick/pcclub/time"
 )
 
 type Table struct {

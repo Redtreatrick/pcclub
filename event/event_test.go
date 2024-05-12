@@ -1,8 +1,8 @@
 package event
 
 import (
-	"pc_club/queue"
-	"pc_club/table"
+	"github.com/Redtreatrick/pcclub/queue"
+	"github.com/Redtreatrick/pcclub/table"
 	"testing"
 )
 

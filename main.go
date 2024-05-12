@@ -3,20 +3,20 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/Redtreatrick/pcclub/event"
+	"github.com/Redtreatrick/pcclub/queue"
+	"github.com/Redtreatrick/pcclub/table"
+	"github.com/Redtreatrick/pcclub/time"
 	"log"
 	"os"
-	"pc_club/event"
-	"pc_club/queue"
-	"pc_club/table"
-	"pc_club/time"
 	"strconv"
 	"strings"
 )
 
 func main() {
-	//filePath := os.Args[1]
-	//file, err := os.Open(filePath)
-	file, err := os.Open("test_file.txt")
+	filePath := os.Args[1]
+	file, err := os.Open(filePath)
+	//file, err := os.Open("test_file.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
