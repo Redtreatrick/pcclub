@@ -1,9 +1,5 @@
 FROM scratch
 
-COPY . .
-
-#ADD main test_file.txt /
-
-#RUN go build -o main .
+COPY main test_file.txt /
 
 CMD ["./main", "test_file.txt"]
