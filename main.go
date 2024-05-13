@@ -3,12 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/Redtreatrick/pcclub/event"
-	"github.com/Redtreatrick/pcclub/queue"
-	"github.com/Redtreatrick/pcclub/table"
-	"github.com/Redtreatrick/pcclub/time"
 	"log"
 	"os"
+	"pcclub/event"
+	"pcclub/queue"
+	"pcclub/table"
+	"pcclub/time"
 	"strconv"
 	"strings"
 )

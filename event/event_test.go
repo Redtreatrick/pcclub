@@ -1,13 +1,10 @@
 package event
 
 import (
-	"github.com/Redtreatrick/pcclub/queue"
-	"github.com/Redtreatrick/pcclub/table"
-	"testing"
-)
-
-import (
 	"fmt"
+	"pcclub/queue"
+	"pcclub/table"
+	"testing"
 )
 
 func TestClientEntered(t *testing.T) {

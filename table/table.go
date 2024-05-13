@@ -1,8 +1,6 @@
 package table
 
-import (
-	"github.com/Redtreatrick/pcclub/time"
-)
+import "pcclub/time"
 
 type Table struct {
 	Amount     int
