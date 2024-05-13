@@ -16,7 +16,6 @@ import (
 func main() {
 	filePath := os.Args[1]
 	file, err := os.Open(filePath)
-	//file, err := os.Open("test_file.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,22 +49,23 @@ func main() {
 	if scanner.Scan() {
 		hourRate, err = strconv.Atoi(scanner.Text())
 		if err != nil {
-			fmt.Println("Error converting hourRate:", err)
-			return
+			log.Fatalf("Error converting hourRate: %v", err)
 		}
 	}
-
-	//fmt.Printf("столов: %d\nоткрытие: %v\nзакрытие: %v\nдоход/час: %d\n",
-	//tableAmount, timeOpen, timeClose, hourRate)
-
 	fmt.Println(timeOpen)
 
 	tables := make([]table.Table, tableAmount+1) // first t shall be ignored
 	users := make(map[string]int)
 	q := queue.NewCircularBuffer(tableAmount)
 
+	var pastEvent time.Minutes
 	for scanner.Scan() {
 		currEvent := event.ReadEvent(strings.Fields(scanner.Text()))
+		if pastEvent > currEvent.TimeMinutes {
+			log.Fatalf("pastEvent should be equal to or less than current time: %v\n", currEvent)
+		}
+		pastEvent = currEvent.TimeMinutes
+
 		switch currEvent.ID {
 		case event.ClientEntered:
 			event.HandleClientEntered(users, currEvent, timeOpen, timeClose)
@@ -97,5 +97,4 @@ func main() {
 		}
 		fmt.Println(num, t.Amount*hourRate, t.TimeTotal)
 	}
-
 }

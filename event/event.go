@@ -34,17 +34,17 @@ const (
 func ReadEvent(data []string) *Event {
 	id, err := strconv.Atoi(data[1])
 	if err != nil {
-		log.Fatalf("Error converting id in: %s", data)
+		log.Fatalf("Error converting id in: %s\n", data)
 	}
 
 	if ID(id) == ClientSat {
 		tableNumber, err := strconv.Atoi(data[3])
 		if err != nil {
-			log.Fatal("Error converting table number:", err)
+			log.Fatalf("Error converting table number: %v", err)
 		}
 
 		if !valid(data[2]) {
-			panic(fmt.Sprintf("Error in client name in: %s %s %s %s", data[0], data[1], data[2], data[3]))
+			log.Fatalf("Error in client name in: %s %s %s %s\n", data[0], data[1], data[2], data[3])
 		}
 
 		return &Event{
@@ -56,8 +56,10 @@ func ReadEvent(data []string) *Event {
 	}
 
 	if !valid(data[2]) {
-		panic(fmt.Sprintf("Error in client name in: %s %s %s", data[0], data[1], data[2]))
+		log.Fatalf("Error in client name in:\n %s %s %s", data[0], data[1], data[2])
 	}
+
+	// echo event
 	fmt.Println(strings.Join(data, " "))
 	return &Event{
 		TimeMinutes: time.Atoi(data[0]),
@@ -149,6 +151,8 @@ func HandleClientLeft(users map[string]int, tables []table.Table, q *queue.Circu
 	}
 
 	if q.Contains(uName) && uData == 0 {
+		q.Evacuate(uName)
+		delete(users, uName)
 		return
 	}
 
